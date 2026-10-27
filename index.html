@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <div class="noise"></div><div class="progress" id="progress"></div>
@@ -76,5 +76,16 @@
 <button class="assistant-launch" id="assistantLaunch" aria-label="Open Sunil portfolio assistant"><span class="assistant-icon"><i class="ri-sparkling-2-fill"></i></span><span><b>ASK SUNIL AI</b><small>Explore my profile</small></span><i class="ri-arrow-up-right-line launch-arrow"></i></button>
 <aside class="assistant" id="assistant" aria-hidden="true"><div class="assistant-head"><div class="assistant-bot"><i class="ri-sparkling-2-fill"></i></div><div><b>PORTFOLIO COPILOT</b><small><i></i> KNOWS THIS PORTFOLIO</small></div><button id="assistantClose" aria-label="Close assistant"><i class="ri-close-line"></i></button></div><div class="assistant-context"><span class="context-dot"></span> Answers are based on Sunil's published profile</div><div class="assistant-messages" id="assistantMessages" aria-live="polite"><div class="chat-message bot"><span class="msg-icon">SJ</span><div class="msg-body"><p>Hey! I'm Sunil's portfolio guide. Ask me about his education, experience, skills, projects or contact details. You can type casually — I'll try to understand what you mean.</p><small>JUST NOW</small></div></div><div class="suggestions"><button data-question="Tell me about Sunil">ABOUT SUNIL</button><button data-question="Show me his best projects">PROJECTS</button><button data-question="What skills does he have?">SKILLS</button><button data-question="How do I contact him?">CONTACT</button></div></div><form id="assistantForm" class="assistant-input"><input id="assistantQuestion" placeholder="Ask about Sunil…" autocomplete="off" aria-label="Question for portfolio assistant"><button aria-label="Send question"><i class="ri-arrow-up-line"></i></button></form><div class="assistant-foot">LOCAL PORTFOLIO ASSISTANT · NO CHAT LOG STORED</div></aside>
 <div id="toast" class="toast"></div>
-<script src="script.js"></script>
+<script>
+// Fast, fail-safe intro: the page never waits for remote fonts or icons.
+(function(){
+  var done=false;
+  function revealSite(){ if(done)return; done=true; var loader=document.getElementById('preloader'); if(loader) loader.classList.add('done'); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(revealSite,180)},{once:true});
+  else setTimeout(revealSite,180);
+  window.addEventListener('load',revealSite,{once:true});
+  setTimeout(revealSite,950);
+})();
+</script>
+<script src="script.js?v=4" onerror="document.getElementById('preloader')?.classList.add('done'); console.error('Portfolio script.js could not load. Check that script.js is in the repository root.');"></script>
 </body></html>
