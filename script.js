@@ -1,6 +1,6 @@
 (() => {
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-window.addEventListener('load',()=>setTimeout(()=>$('#preloader')?.classList.add('done'),450));
+window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>$('#preloader')?.classList.add('done'),120),{once:true});setTimeout(()=>$('#preloader')?.classList.add('done'),950);
 $('#year').textContent=new Date().getFullYear();
 const progress=$('#progress');function onScroll(){const max=document.documentElement.scrollHeight-innerHeight;progress.style.width=(max?scrollY/max*100:0)+'%'}addEventListener('scroll',onScroll,{passive:true});onScroll();
 // Nav
@@ -19,8 +19,8 @@ $('#contactForm').addEventListener('submit',e=>{e.preventDefault();const name=$(
 function toast(s){const el=$('#toast');el.textContent=s;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2500)}
 // Lightweight particle field, automatically reduced on small screens.
 const canvas=$('#particles'),ctx=canvas.getContext('2d');let pts=[],raf;
-function setupParticles(){const w=canvas.width=innerWidth*(devicePixelRatio||1),h=canvas.height=Math.min(innerHeight*1.15,1050)*(devicePixelRatio||1);canvas.style.width=innerWidth+'px';canvas.style.height=Math.min(innerHeight*1.15,1050)+'px';ctx.setTransform(devicePixelRatio||1,0,0,devicePixelRatio||1,0,0);pts=Array.from({length:innerWidth<650?28:65},()=>({x:Math.random()*innerWidth,y:Math.random()*Math.min(innerHeight*1.15,1050),r:Math.random()*1.4+.3,v:Math.random()*.22+.06,p:Math.random()*6.28}))}
-function drawParticles(){ctx.clearRect(0,0,innerWidth,Math.min(innerHeight*1.15,1050));pts.forEach((p,i)=>{p.y-=p.v;p.p+=.012;if(p.y<0){p.y=Math.min(innerHeight*1.15,1050);p.x=Math.random()*innerWidth}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(198,255,94,${.25+.3*Math.sin(p.p)})`;ctx.fill();if(innerWidth>650){for(let j=i+1;j<pts.length;j++){const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.hypot(dx,dy);if(d<95){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(166,140,255,${.09*(1-d/95)})`;ctx.stroke()}}}});raf=requestAnimationFrame(drawParticles)}
+function setupParticles(){const dpr=Math.min(devicePixelRatio||1,1.5),w=canvas.width=innerWidth*dpr,h=canvas.height=Math.min(innerHeight*1.15,1050)*dpr;canvas.style.width=innerWidth+'px';canvas.style.height=Math.min(innerHeight*1.15,1050)+'px';ctx.setTransform(dpr,0,0,dpr,0,0);pts=Array.from({length:innerWidth<650?12:32},()=>({x:Math.random()*innerWidth,y:Math.random()*Math.min(innerHeight*1.15,1050),r:Math.random()*1.4+.3,v:Math.random()*.22+.06,p:Math.random()*6.28}))}
+function drawParticles(){if(document.hidden){raf=requestAnimationFrame(drawParticles);return}ctx.clearRect(0,0,innerWidth,Math.min(innerHeight*1.15,1050));pts.forEach((p,i)=>{p.y-=p.v;p.p+=.012;if(p.y<0){p.y=Math.min(innerHeight*1.15,1050);p.x=Math.random()*innerWidth}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(198,255,94,${.25+.3*Math.sin(p.p)})`;ctx.fill();if(innerWidth>650){for(let j=i+1;j<pts.length;j++){const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.hypot(dx,dy);if(d<95){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(166,140,255,${.09*(1-d/95)})`;ctx.stroke()}}}});raf=requestAnimationFrame(drawParticles)}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches){setupParticles();drawParticles();addEventListener('resize',()=>{cancelAnimationFrame(raf);setupParticles();drawParticles()})}
 // Portfolio copilot: explicit profile facts, fuzzy keyword scoring and transparent fallback.
 // It's a local FAQ bot, not a generative AI service. It does not transmit user messages.
@@ -61,16 +61,31 @@ human:['human care','diabetes prediction','diabetes project'],
 safescan:['safescan','safe scan','virus detector','link detector','security scanner']
 };
 function score(q,key){let s=0;const tokens=norm(q).split(' ');for(const phrase of intents[key]){const p=norm(phrase);if(norm(q).includes(p)){s+=p.includes(' ')?5:3;continue}for(const w of p.split(' ')){if(w.length<4)continue;if(tokens.some(t=>t===w||(t.length>=4&&distance(t,w)<= (w.length>7?2:1))))s+=1}}return s}
-function answer(q){const n=norm(q);if(!n)return"Ask me about Sunil's education, experience, skills, projects or contact details.";if(/^(hi|hello|hey|hii|hiii|namaste|good morning|good evening)\b/.test(n))return"Hey! 👋 I'm Sunil's portfolio guide. I can explain his education, experience, skills, projects or contact options. What would you like to know?";
-if(/\b(thanks|thank you|thx|shukriya|dhanyavad)\b/.test(n))return"You're welcome! Want details about Sunil's projects, skills, education or experience?";
-if(/\b(whatsapp|call|phone|mobile|number|contact|email|mail|linkedin|github)\b/.test(n))return profile.contact;
-if(/\b(ltms|logistic|transport|chetak|bidding)\b/.test(n))return profile.ltms;
-if(/\b(whatsapp chatbot|chatbot|nlp bot)\b/.test(n))return profile.chatbot;
-if(/\b(human care|diabetes|health project)\b/.test(n))return profile.human;
-if(/\b(safescan|safe scan|virus detector|link detector)\b/.test(n))return profile.safescan;
-let scores=Object.keys(intents).map(k=>[k,score(n,k)]).sort((a,b)=>b[1]-a[1]);if(scores[0][1]>=2)return profile[scores[0][0]]||profile.about;
-if(/\b(hire|hiring|opportunity|collaborate|available for work)\b/.test(n))return"Sunil is interested in opportunities and collaboration related to data science, AI and software development. Contact him at technical.programmer.sunil@gmail.com or via LinkedIn: https://www.linkedin.com/in/sunil-jat61/";
-return"I couldn't confidently identify that question from the information on this portfolio, so I don't want to guess. Try asking about Sunil's education, Regex Software internship, web development experience, skills, projects, LTMS, or contact details. For anything not listed here, contact Sunil directly at technical.programmer.sunil@gmail.com.";
+let lastTopic='about';
+function answer(q){
+ const n=norm(q), raw=q.toLowerCase().trim();
+ if(!n)return"Ask me about Sunil's education, experience, skills, projects or contact details. Hindi/Hinglish questions are welcome too.";
+ if(/^(hi|hello|hey|hii+|heyy+|namaste|hola|good morning|good evening|good afternoon)\b/.test(n))return"Hey! 👋 Welcome to Sunil's portfolio. I can walk you through his education, Regex Software internship, web development work, projects, skills, or contact details. Hindi/Hinglish mein bhi pooch sakte ho. What are you curious about?";
+ if(/\b(thanks|thank you|thx|shukriya|dhanyavad|thankyou)\b/.test(n))return"You're welcome! 😊 Want me to go deeper into a project, his technical stack, or his experience?";
+ if(/\b(bye|goodbye|see you|tata)\b/.test(n))return"Thanks for stopping by! If you'd like to connect with Sunil, email technical.programmer.sunil@gmail.com or message him on LinkedIn.";
+ if(/\b(tell me more|more details|explain more|aur batao|aur btao|detail me|details please|go on|continue|what else|and then|iska aur)\b/.test(n)){return ({about:profile.about,education:profile.education,experience:profile.experience,skills:profile.skills,projects:profile.projects,contact:profile.contact,ltms:profile.ltms,chatbot:profile.chatbot,human:profile.human,safescan:profile.safescan})[lastTopic]||profile.about}
+ if(/\b(whatsapp|call|phone|mobile|number|contact|email|mail|linkedin|github|reach him|sampark|baat kar)\b/.test(n)){lastTopic='contact';return profile.contact}
+ if(/\b(ltms|logistic|logistics|transport|chetak|bidding|vehicle availability|trip monitoring)\b/.test(n)){lastTopic='ltms';return profile.ltms}
+ if(/\b(whatsapp chatbot|chatbot|nlp bot|bot project)\b/.test(n)){lastTopic='chatbot';return profile.chatbot}
+ if(/\b(human care|diabetes|health project|healthcare)\b/.test(n)){lastTopic='human';return profile.human}
+ if(/\b(safescan|safe scan|virus detector|link detector|security scanner)\b/.test(n)){lastTopic='safescan';return profile.safescan}
+ if(/\b(certificates?|certifications?|awards?|achievements?|competition|prizes?)\b/.test(n)){lastTopic='achievements';return profile.achievements+" If you share a verified certificate or award later, it can be added to the portfolio."}
+ if(/\b(hire|hiring|job opening|opportunity|collaborate|available for work|recruit|employ)\b/.test(n)){lastTopic='contact';return"Sunil is interested in opportunities related to data science, AI/ML, analytics and software development. To discuss a role or collaboration, email technical.programmer.sunil@gmail.com or connect on LinkedIn: https://www.linkedin.com/in/sunil-jat61/ ."}
+ if(/\b(what can you do|help|options|what should i ask|kya puch|kya pooch)\b/.test(n))return"Try any of these: “Tell me about Sunil”, “What is his education?”, “Which tools does he use?”, “Explain the LTMS project”, “What did he build with AI?”, or “How can I contact him?” You can ask in casual Hinglish too.";
+ let scores=Object.keys(intents).map(k=>[k,score(n,k)]).sort((a,b)=>b[1]-a[1]);
+ if(scores[0][1]>=2){lastTopic=scores[0][0];return profile[lastTopic]||profile.about}
+ // Topic hints make short, typo-heavy and mixed-language questions easier to route.
+ if(/\b(padhai|qualification|degree|college|university|bca|mca|sgpa|marks|study|studied|graduat|education)\b/.test(n)){lastTopic='education';return profile.education}
+ if(/\b(kaun|kon|who|sunil|intro|introduction|bare me|baare me|about)\b/.test(n)){lastTopic='about';return profile.about}
+ if(/\b(kaam|work|job|intern|internship|regex|developer|experience|company)\b/.test(n)){lastTopic='experience';return profile.experience}
+ if(/\b(skill|skills|tech|technology|python|sql|machine learning|data science|power bi|aws|php)\b/.test(n)){lastTopic='skills';return profile.skills}
+ if(/\b(project|projects|banaya|banaye|built|github|demo|portfolio)\b/.test(n)){lastTopic='projects';return profile.projects}
+ return"I want to give you an accurate answer rather than make something up. I can help with Sunil's BCA/MCA education, Regex Software internship, part-time web development, Python/SQL/AI skills, featured projects (including LTMS), resume, or contact links. Try a short question like “Sunil ki education kya hai?” or “Explain LTMS project”. For anything not listed, email technical.programmer.sunil@gmail.com.";
 }
 function addMessage(text,who='bot'){const row=document.createElement('div');row.className='chat-message '+who;const icon=document.createElement('span');icon.className='msg-icon';icon.textContent=who==='user'?'YOU':'SJ';const body=document.createElement('div');body.className='msg-body';const p=document.createElement('p');p.textContent=text;const t=document.createElement('small');t.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});body.append(p,t);row.append(icon,body);msgs.append(row);msgs.scrollTop=msgs.scrollHeight;return row}
 function ask(q){q=(q||'').trim();if(!q)return;addMessage(q,'user');input.value='';const wait=document.createElement('div');wait.className='chat-message bot';wait.innerHTML='<span class="msg-icon">SJ</span><div class="msg-body"><div class="typing-dots"><i></i><i></i><i></i></div></div>';msgs.append(wait);msgs.scrollTop=msgs.scrollHeight;setTimeout(()=>{wait.remove();addMessage(answer(q));},250+Math.min(q.length*4,300))}
